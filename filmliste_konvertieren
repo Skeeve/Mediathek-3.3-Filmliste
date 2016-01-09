@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+# 
+# Mediathek 3.3 Filmliste - filmliste_konvertieren
+# Copyright (C) 2016 M33F.von.Skeeve [at] xoxy [dot] net
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+use strict;
+use warnings;
+use utf8;
+use open ':encoding(utf8)';
+
+binmode STDIN, ':encoding(utf8)';
+binmode STDOUT, ':encoding(utf8)';
+
+# Zuordnung der Feldnamen zu verwendeten Tags
+my %feldinfo=(
+     'Nr'             => "a",
+     'Url_History'    => "aa",
+     'Sender'         => "b",
+     'Geo'            => "bb",
+     'Thema'          => "c",
+     'Untertitel'     => "cc",
+     'Titel'          => "d",
+     'Datum'          => "e",
+     'Zeit'           => "f",
+     'Url'            => "g",
+     'UrlRTMP'        => "i",
+     'UrlAuth'        => "j",
+     'Website'        => "k",
+     'Aboname'        => "l",
+     'Dauer'          => "m",
+     'Beschreibung'   => "n",
+     'neu'            => "o",
+     'Url_Klein'      => "r",
+     'UrlRTMP_Klein'  => "s",
+     'Größe [MB]'     => "t",
+     'Url_HD'         => "t",
+     'UrlRTMP_HD'     => "u",
+     'DatumL'         => "y",
+     'Ref'            => "z", 
+);
+
+my $filmliste="";
+
+# Ein paar XML Entities
+my %ESCAPES=(
+    '&' => '&amp;',
+    '<' => '&lt;',
+    '>' => '&gt;',
+);
+# Als regulärer Ausdruck
+my $ESCAPES= join('|', '\\\\"', keys %ESCAPES);
+# Zusätzlich noch JSON-Quote (\")
+$ESCAPES{'\\"'}= '"';
+
+my @columns;
+
+# Kopfzeile ausgeben
+print qq'<?xml version="1.0" encoding="UTF-8"?>\n<Mediathek>\n';
+
+# Zeilenweise bearbeiten
+while (<>) {
+    # Alle Zeilen ausser "X" und "Filmliste" ignorieren
+	next unless s/^\s*"(Filmliste|X)"\s*:\s*//;
+	# type ist "X" oder "Filmliste"
+	my $type= $1;
+	# Daten in Array holen und gleich für XML aufbereiten
+	my @data= map escape($_), /"((?:[^\\"]*|\\.)*)"/g;
+	# Filminformationen ("X")
+	if ($type eq "X") {
+	    my %data;
+	    # Werte auf Felder zuweisen
+	    @data{@columns}= @data;
+	    # Und mit passenden Tags versehen ausgeben
+	    print tag("X", join('', map tag($feldinfo{$_}, $data{$_}), @columns)),"\n";
+	}
+	else {
+	    # Wenn Filmliste noch nicht gelesen wurde
+		if (not $filmliste) {
+		    # Das Filmliste - Tag erstellen
+			$filmliste=tag("Filmliste",
+				 tag("Filmliste-Datum",     $data[0])
+				.tag("Filmliste-Datum-GMT", $data[1])
+				.tag("Filmliste-Version",   $data[2])
+				.tag("Filmliste-Programm",  $data[3])
+				.tag("Filmliste-Id",        $data[4])
+			);
+			# und ausgeben
+			print $filmliste,"\n";
+		}
+		else {
+		    # Ansonsten die Feldinfo ausgeben
+			@columns= @data;
+			print tag("Feldinfo",
+			    "\n".join("\n",
+			        map tag($feldinfo{$_}, $_), @columns
+			     )."\n")."\n";
+		}
+	}
+}
+# Schlußtag
+print "</Mediathek>\n";
+
+# Ersetzte benannte Entities und quote
+sub escape {
+    my($content)= @_;
+    $content=~ s/($ESCAPES)/$ESCAPES{$1}||$1/geo;
+    return $content;
+}
+
+# Gib nicht-leere Tags aus
+sub tag {
+	my($name, $content)= @_;
+	return "" unless $content;
+	return "<$name>$content</$name>";
+}

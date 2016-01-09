@@ -1,0 +1,80 @@
+#!/bin/sh
+# 
+# Mediathek 3.3 Filmliste - filmliste_laden
+# Copyright (C) 2016 M33F.von.Skeeve [at] xoxy [dot] net
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Hier findet man die Serverliste
+SERVERLIST='http://zdfmediathk.sourceforge.net/akt.xml'
+
+# Zuerst ermitteln wo sich dieses Script befindet
+mypath=$( perl -MCwd=abs_path -le 'print abs_path readlink(shift);' "$0" )
+
+# Testen ob der Konverter ausführbar ist
+convert_cmd="$mypath/filmliste_konvertieren";
+if [ ! -x "$convert_cmd" ] ; then
+	echo "$convert_cmd ist nicht ausführbar."
+	exit 1
+fi
+
+# Perl Script um die URLs herauszufiltern und die Reihenfolge zu mischen
+read -r -d '' GREP_URLS <<'PERLSCRIPT'
+	use strict;
+	use warnings;
+	use open ':encoding(utf8)';
+	binmode STDIN, ':encoding(utf8)';
+	binmode STDOUT, ':encoding(utf8)';
+	# ganze Liste auf einmal einlesen
+	$_=do { local $/; <> };
+	# Alle Zeilenumbrüche löschen
+	tr/\n\r//d;
+	# Serveradressen ausfiltern
+	my @list= m#<Server>.*?<URL>(.*?)</URL>#g;
+	# Mischen
+	my $i=@list; 
+	my $j;
+	while ($i) {
+		$j=int rand($i--); 
+		@list[$i, $j]=@list[$j, $i];
+	}
+	# Liste ausgeben
+	print join("\n", @list);
+PERLSCRIPT
+
+# Serverliste holen und alle URLs in zufälliger Reihenfolge extrahieren.
+echo "Serverliste laden…"
+SERVERS=$( curl "$SERVERLIST" | perl -e "$GREP_URLS" )
+echo
+
+# URLs der Reihe nach testen bis die erste gefunden wird,
+# unter der Daten zu holen sind.
+url=''
+for s in $SERVERS ; do
+	echo "Versuche ${s}…"
+	if curl -f -s -I "$s" > /dev/null ; then
+		url="$s"
+		break
+	fi
+done
+
+# Wenn keine Filmliste gefunden wurde, aussteigen
+if [ -z "$url" ] ; then
+	echo "Keine Programmliste gefunden"
+	exit 22
+fi
+
+# Filmliste laden | entpacken | konvertieren | speichern
+curl "$s" | xz -d - | "$convert_cmd" > ~/.mediathek3/filme.xml
