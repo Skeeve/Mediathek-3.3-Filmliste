@@ -21,7 +21,8 @@
 SERVERLIST='http://zdfmediathk.sourceforge.net/akt.xml'
 
 # Zuerst ermitteln wo sich dieses Script befindet
-mypath=$( perl -MCwd=abs_path -le 'print abs_path readlink(shift);' "$0" )
+# readlink funktioniert in OS X nicht wie erwartet. Also nur dirname
+mypath=$( dirname "$0" )
 
 # Testen ob der Konverter ausführbar ist
 convert_cmd="$mypath/filmliste_konvertieren";
