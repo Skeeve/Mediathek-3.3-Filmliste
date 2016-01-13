@@ -1,0 +1,9 @@
+#!/bin/sh
+cp \
+	filmliste_laden \
+	filmliste_konvertieren \
+"Filmliste laden.app/Contents/Resources/Scripts/"
+cp \
+	images/filmliste_laden.icns \
+"Filmliste laden.app/Contents/Resources/droplet.icns"
+zip -r "Filmliste laden.zip" "Filmliste laden.app"

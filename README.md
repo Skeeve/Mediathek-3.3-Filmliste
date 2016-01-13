@@ -6,7 +6,12 @@ MediathekView Version 3.3 muß installiert und lauffähig sein.
 
 Die filmliste wird in ~/.mediathek3/ als filme.xml abgelegt.
 
-# Installation
+# Installation als Programm
+Die Datei "Filmliste laden.zip" entpacken und das enthaltene Programm ins Programmverzeichnis kopieren.
+
+MediathekView kann nach dem Download der Filmliste automatisch gestartet werden. Dazu einfach einmal MediathekView auf "Filmliste laden" ziehen und den folgenden Dialog mit "Ja" beantworten.
+
+# Installation als Kommandozeilen Tools
 Die Dateien
     filmliste_laden
     filmliste_konvertieren
