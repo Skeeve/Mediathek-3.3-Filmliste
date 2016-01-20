@@ -35,12 +35,13 @@ if [ ! -x "$convert_cmd" ] ; then
 fi
 
 # Testen ob xz installiert ist
-xz=$( which xz )
+xz=$( which xz || xz=/usr/local/bin/xz && [ -x $xz ] && echo $xz )
 if [ -z "$xz" ] ; then
 	{
 	echo "****************************************"
 	echo "Die xz-Utils sind nicht installiert."
 	echo "Homepage der xz-Utils: http://tukaani.org/xz/"
+	echo "XZ.pkg : http://macpkg.sourceforge.net/"
 	} >&2
 	exit 2
 fi
