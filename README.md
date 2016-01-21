@@ -11,7 +11,7 @@ Zur Info: Die Filmliste wird in ~/.mediathek3/ als filme.xml abgelegt. Dies ist 
 # Installation als Programm
 Die Datei "Filmliste laden.zip" entpacken und das enthaltene Programm ins Programmverzeichnis kopieren.
 
-MediathekView kann nach dem Download der Filmliste automatisch gestartet werden. Dazu einfach einmal MediathekView auf "Filmliste laden" ziehen und den folgenden Dialog mit "Ja" beantworten.
+MediathekView kann nach dem Download der Filmliste automatisch gestartet werden. Dazu einfach einmal MediathekView_Mac_Start.command auf "Filmliste laden" ziehen und den folgenden Dialog mit "Ja" beantworten.
 
 # Installation als Kommandozeilen Tools
 Die Dateien
