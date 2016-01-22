@@ -13,6 +13,12 @@ Die Datei "Filmliste laden.zip" entpacken und das enthaltene Programm ins Progra
 
 MediathekView kann nach dem Download der Filmliste automatisch gestartet werden. Dazu einfach einmal MediathekView_Mac_Start.command auf "Filmliste laden" ziehen und den folgenden Dialog mit "Ja" beantworten.
 
+Danach erscheint die Frage "Soll das Terminal Fenster offen bleiben um alle Meldungen von MediathekView anzuzeigen, oder soll es geschlossen werden?". 
+
+"Offen" bedeutet, daß das Terminal Fenster, in dem der Download Fortschritt angezeigt wird, offen bleibt solange MediathekView läuft. Hier erscheinen dann auch die Log-Meldungen von MediathekView.
+
+"Schließen" bedeutet, daß dieses Fenster nur bis ca. 10 Sekunden nach dem Start von MediathekView zu sehen bleibt und danach geschlossen wird.
+
 # Installation als Kommandozeilen Tools
 Die Dateien
     filmliste_laden
