@@ -70,27 +70,35 @@ read -r -d '' GREP_URLS <<'PERLSCRIPT'
 	print join("\n", @list);
 PERLSCRIPT
 
-# Serverliste holen und alle URLs in zufälliger Reihenfolge extrahieren.
-echo "Serverliste laden…"
-SERVERS=$( curl "$SERVERLIST" | perl -e "$GREP_URLS" )
-echo
+if [ -z "$1" ] ; then
 
-# URLs der Reihe nach testen bis die erste gefunden wird,
-# unter der Daten zu holen sind.
-url=''
-for s in $SERVERS ; do
-	echo "Versuche ${s}…"
-	if curl -f -s -I "$s" > /dev/null ; then
-		url="$s"
-		break
+	# Serverliste holen und alle URLs in zufälliger Reihenfolge extrahieren.
+	echo "Serverliste laden…"
+	SERVERS=$( curl "$SERVERLIST" | perl -e "$GREP_URLS" )
+	echo
+
+	# URLs der Reihe nach testen bis die erste gefunden wird,
+	# unter der Daten zu holen sind.
+	url=''
+	for s in $SERVERS ; do
+		echo "Versuche ${s}…"
+		if curl -f -s -I "$s" > /dev/null ; then
+			url="$s"
+			break
+		fi
+	done
+	
+	# Wenn keine Filmliste gefunden wurde, aussteigen
+	if [ -z "$url" ] ; then
+		echo "Keine Programmliste gefunden"
+		exit 22
 	fi
-done
-
-# Wenn keine Filmliste gefunden wurde, aussteigen
-if [ -z "$url" ] ; then
-	echo "Keine Programmliste gefunden"
-	exit 22
+	# Filmliste laden | entpacken | konvertieren | speichern
+	curl "$s" | xz -d - | "$convert_cmd" > ~/.mediathek3/filme.xml
+elif xz -t "$1" 2>/dev/null ; then
+	# Alte Filmliste entpacken / konvertieren / speichern
+	xz -d "$1" | "$convert_cmd" > ~/.mediathek3/filme.xml
+else
+	"$convert_cmd" "$1" > ~/.mediathek3/filme.xml
 fi
 
-# Filmliste laden | entpacken | konvertieren | speichern
-curl "$s" | xz -d - | "$convert_cmd" > ~/.mediathek3/filme.xml
