@@ -20,6 +20,10 @@
 # Hier findet man die Serverliste
 SERVERLIST='http://zdfmediathk.sourceforge.net/akt.xml'
 
+# Hier ist mediatheks Arbeitsverzeichnis
+WORKDIR=~/.mediathek3
+LISTNAME="serverlist.xml"
+
 # Zuerst ermitteln wo sich dieses Script befindet
 # readlink funktioniert in OS X nicht wie erwartet. Also nur dirname
 mypath=$( dirname "$0" )
@@ -72,10 +76,27 @@ PERLSCRIPT
 
 if [ -z "$1" ] ; then
 
-	# Serverliste holen und alle URLs in zufälliger Reihenfolge extrahieren.
+	# Serverliste holen
 	echo "Serverliste laden…"
-	SERVERS=$( curl "$SERVERLIST" | perl -e "$GREP_URLS" )
-	echo
+	if curl "$SERVERLIST" > "$WORKDIR/$LISTNAME.new" ; then
+		mv "$WORKDIR/$LISTNAME.new" "$WORKDIR/$LISTNAME"
+		echo "Geladen"
+	elif [ -r "$WORKDIR/$LISTNAME" ] ; then
+		{
+		echo "****************************************"
+		echo "Es konnte keine neue Serverliste geladen werden."
+		echo "Ein Backup ist vorhanden."
+		} >&2
+	else
+		{
+		echo "****************************************"
+		echo "Es konnte keine neue Serverliste geladen werden."
+		echo "Ein Backup ist leider nicht vorhanden."
+		} >&2
+		exit 3
+	fi
+	# und alle URLs in zufälliger Reihenfolge extrahieren.
+	SERVERS=$( perl -e "$GREP_URLS" "$WORKDIR/$LISTNAME" )
 
 	# URLs der Reihe nach testen bis die erste gefunden wird,
 	# unter der Daten zu holen sind.

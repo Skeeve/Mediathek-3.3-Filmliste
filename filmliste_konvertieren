@@ -106,7 +106,7 @@ while (<>) {
 			@columns= @data;
 			print tag("Feldinfo",
 			    "\n".join("\n",
-			        map tag($feldinfo{$_}, $_), @columns
+			        grep !!$_, map tag($feldinfo{$_}, $_), @columns
 			     )."\n")."\n";
 		}
 	}
@@ -124,6 +124,6 @@ sub escape {
 # Gib nicht-leere Tags aus
 sub tag {
 	my($name, $content)= @_;
-	return "" unless $content;
+	return "" unless $content and $name;
 	return "<$name>$content</$name>";
 }
