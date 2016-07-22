@@ -28,7 +28,7 @@ binmode STDOUT, ':encoding(utf8)';
 # Zuordnung der Feldnamen zu verwendeten Tags
 my %feldinfo=(
      'Nr'             => "a",
-     'Url_History'    => "aa",
+     'Url History'    => "aa",
      'Sender'         => "b",
      'Geo'            => "bb",
      'Thema'          => "c",
@@ -37,21 +37,49 @@ my %feldinfo=(
      'Datum'          => "e",
      'Zeit'           => "f",
      'Url'            => "g",
-     'UrlRTMP'        => "i",
+     'Url RTMP'       => "i",
      'UrlAuth'        => "j",
      'Website'        => "k",
      'Aboname'        => "l",
      'Dauer'          => "m",
      'Beschreibung'   => "n",
      'neu'            => "o",
-     'Url_Klein'      => "r",
-     'UrlRTMP_Klein'  => "s",
+     'Url Klein'      => "r",
+     'Url RTMP Klein' => "s",
      'Größe [MB]'     => "t",
-     'Url_HD'         => "t",
-     'UrlRTMP_HD'     => "u",
+     'Url HD'         => "t",
+     'Url RTMP HD'    => "u",
      'DatumL'         => "y",
      'Ref'            => "z", 
 );
+
+# Zuordnung der neuen Feldnamen zu den alten
+my %feldnamen=(
+     'Nr'             => 'Nr',
+     'Url History'    => 'Url_History',
+     'Sender'         => 'Sender',
+     'Geo'            => 'Geo',
+     'Thema'          => 'Thema',
+     'Untertitel'     => 'Untertitel',
+     'Titel'          => 'Titel',
+     'Datum'          => 'Datum',
+     'Zeit'           => 'Zeit',
+     'Url'            => 'Url',
+     'Url RTMP'       => 'UrlRTMP',
+     'UrlAuth'        => 'UrlAuth',
+     'Website'        => 'Website',
+     'Aboname'        => 'Aboname',
+     'Dauer'          => 'Dauer',
+     'Beschreibung'   => 'Beschreibung',
+     'neu'            => 'neu',
+     'Url Klein'      => 'Url_Klein',
+     'Url RTMP Klein' => 'UrlRTMP_Klein',
+     'Größe [MB]'     => 'Größe [MB]',
+     'Url HD'         => 'Url_HD',
+     'Url RTMP HD'    => 'UrlRTMP_HD',
+     'DatumL'         => 'DatumL',       
+     'Ref'            => 'Ref',
+);                                                 
 
 my $filmliste="";
 
@@ -106,7 +134,7 @@ while (<>) {
 			@columns= @data;
 			print tag("Feldinfo",
 			    "\n".join("\n",
-			        grep !!$_, map tag($feldinfo{$_}, $_), @columns
+			        grep !!$_, map tag($feldinfo{$_}, $feldnamen{$_}), @columns
 			     )."\n")."\n";
 		}
 	}
